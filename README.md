@@ -5,7 +5,7 @@ A simple ASP.NET Core Web API for managing students, built with .NET 10 and Azur
 ## Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
-- [SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) (LocalDB, SQL Server Express, or Azure SQL)
+- [SQL Server Developer/Community Edition](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) (free for educational use)
 
 ## Clone the Repository
 
@@ -16,13 +16,9 @@ cd data2410-api-v1
 
 ## Local Database Setup
 
-### Option A: SQL Server LocalDB (included with Visual Studio)
+Download and install [SQL Server Community Edition](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) — it is **free for educational use**.
 
-No installation needed if you have Visual Studio installed. LocalDB is already available.
-
-### Option B: SQL Server Express
-
-Download and install [SQL Server Express](https://www.microsoft.com/en-us/sql-server/sql-server-downloads).
+You can also install [SQL Server Management Studio (SSMS)](https://learn.microsoft.com/en-us/ssms/download-sql-server-management-studio-ssms) to manage your database visually.
 
 ## Configure the Connection String
 
@@ -31,7 +27,7 @@ Create a file named `appsettings.Development.json` in the project root (this fil
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=StudentsDb;Trusted_Connection=True;TrustServerCertificate=True;"
+    "DefaultConnection": "Server=localhost;Database=StudentsDb;Trusted_Connection=True;TrustServerCertificate=True;"
   },
   "Logging": {
     "LogLevel": {
@@ -42,10 +38,7 @@ Create a file named `appsettings.Development.json` in the project root (this fil
 }
 ```
 
-> **Note:** If using SQL Server Express instead of LocalDB, replace the connection string with:
-> ```
-> Server=localhost\\SQLEXPRESS;Database=StudentsDb;Trusted_Connection=True;TrustServerCertificate=True;
-> ```
+> **Note:** If your SQL Server uses a named instance, update the `Server` value accordingly, e.g. `Server=localhost\\MSSQLSERVER`.
 
 The `Students` table is created automatically on startup — no manual database setup needed.
 

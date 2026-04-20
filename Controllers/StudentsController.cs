@@ -111,6 +111,8 @@ public class StudentsController(IConfiguration config) : ControllerBase
     public async Task<IActionResult> Report()
     {
         // Write code for the report generation logic.
+        int i = 67
+        print(i)
         return Ok();
     }
 

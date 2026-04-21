@@ -100,10 +100,33 @@ public class StudentsController(IConfiguration config) : ControllerBase
     [HttpPost("calculate-grades")]
     public async Task<ActionResult<List<Student>>> CalculateGrades()
     {
-        var studentsWithGrade = new List<Student>();
-
         // Write code to calculate and update grades
-
+        var studentsWithGrade = new List<Student>();
+        using var conn = new SqlConnection(_connectionString); 
+        await conn.OpenAsync();//open asynchrounous connection to the sql server
+        using var cmd = new SqlCommand("SELECT Id, Name, Course, Marks, Grade FROM Students", conn);
+        using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                studentsWithGrade.Add(new Student //We add json format of the students to studentsWithGrade
+                {
+                    Id = reader.GetInt32(0),
+                    Name = reader.GetString(1),
+                    Course = reader.GetString(2),
+                    Marks = reader.GetInt32(3),
+                    Grade = reader.IsDBNull(4) ? null : reader.GetString(4)
+                });
+            }
+        
+        
+        foreach (var stu in studentsWithGrade)
+        {
+            stu.Grade = GetGrade(stu.Marks); //We get the Students grade foreach iteration and update the grade.
+            using var cmd2 = new SqlCommand("UPDATE Students SET Grade = @Grade WHERE Id = @Id", conn); //We do the SqlCommand now for update 
+            cmd2.Parameters.AddWithValue("@Id", stu.Id); //Specifies which Id that we iterate in studentsWithGrade
+            cmd2.Parameters.AddWithValue("@Grade", stu.Grade); //Updates the student with x id's grade, we input stu.Grade because we just got its grade from the mark litte above here
+             await cmd2.ExecuteNonQueryAsync(); //Makes sure we update before we update the next one  
+        }
         return studentsWithGrade;
     }
 
@@ -111,8 +134,6 @@ public class StudentsController(IConfiguration config) : ControllerBase
     public async Task<IActionResult> Report()
     {
         // Write code for the report generation logic.
-        int i = 67
-        print(i)
         return Ok();
     }
 

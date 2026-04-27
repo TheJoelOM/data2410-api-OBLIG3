@@ -135,40 +135,39 @@ public class StudentsController(IConfiguration config) : ControllerBase
     public async Task<IActionResult> Report()
     {
         // Write code for the report generation logic.
-    var reports = new List<CourseReport>();
+        var reports = new List<CourseReport>(); //This list will store final report objects
+        using var conn = new SqlConnection(_connectionString);
+        await conn.OpenAsync();
+        //below is a sql querry that will group students by course and calulate the total students average marks and the number of abcd grades
+        var query = @"
+            SELECT 
+                Course,
+                COUNT(*) AS TotalStudents,
+                AVG(Marks) AS AverageMarks,
+                SUM(CASE WHEN Grade = 'A' THEN 1 ELSE 0 END) AS ACount,
+                SUM(CASE WHEN Grade = 'B' THEN 1 ELSE 0 END) AS BCount,
+                SUM(CASE WHEN Grade = 'C' THEN 1 ELSE 0 END) AS CCount,
+                SUM(CASE WHEN Grade = 'D' THEN 1 ELSE 0 END) AS DCount
+            FROM Students
+            GROUP BY Course;
+        ";
 
-    using var conn = new SqlConnection(_connectionString);
-    await conn.OpenAsync();
-
-    var query = @"
-        SELECT 
-            Course,
-            COUNT(*) AS TotalStudents,
-            AVG(Marks) AS AverageMarks,
-            SUM(CASE WHEN Grade = 'A' THEN 1 ELSE 0 END) AS ACount,
-            SUM(CASE WHEN Grade = 'B' THEN 1 ELSE 0 END) AS BCount,
-            SUM(CASE WHEN Grade = 'C' THEN 1 ELSE 0 END) AS CCount,
-            SUM(CASE WHEN Grade = 'D' THEN 1 ELSE 0 END) AS DCount
-        FROM Students
-        GROUP BY Course;
-    ";
-
-    using var cmd = new SqlCommand(query, conn);
-    using var reader = await cmd.ExecuteReaderAsync();
-    while (await reader.ReadAsync())
-    {
-        reports.Add(new CourseReport
+        using var cmd = new SqlCommand(query, conn);
+        using var reader = await cmd.ExecuteReaderAsync(); //Execute the query and get a reader to iterate through the reults
+        while (await reader.ReadAsync()) //Loop through each row returned by sql
         {
-            Course = reader.GetString(0),
-            TotalStudents = reader.GetInt32(1),
-            AverageMarks = Convert.ToDouble(reader.GetValue(2)),
-            ACount = reader.GetInt32(3),
-            BCount = reader.GetInt32(4),
-            CCount = reader.GetInt32(5),
-            DCount = reader.GetInt32(6)
-        });
-    }
-    return Ok(reports);
+            reports.Add(new CourseReport // Converting each row into a coursereport object and adding it to the list
+            {
+                Course = reader.GetString(0),
+                TotalStudents = reader.GetInt32(1),
+                AverageMarks = Convert.ToDouble(reader.GetValue(2)),
+                ACount = reader.GetInt32(3),
+                BCount = reader.GetInt32(4),
+                CCount = reader.GetInt32(5),
+                DCount = reader.GetInt32(6)
+            });
+        }
+        return Ok(reports); //Return the full report as JSON to the client
     }
 
     [HttpDelete("{id}")]

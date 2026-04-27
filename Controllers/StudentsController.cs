@@ -135,29 +135,40 @@ public class StudentsController(IConfiguration config) : ControllerBase
     public async Task<IActionResult> Report()
     {
         // Write code for the report generation logic.
-        var reports = new List<CourseReport>();
-        using var conn = new SqlConnection(_connectionString);
-        await conn.OpenAsync();
-        var query = @"Course, COUNT(*) AS TotalStudents, AVG(Marks) AS AverageMarks,
+    var reports = new List<CourseReport>();
+
+    using var conn = new SqlConnection(_connectionString);
+    await conn.OpenAsync();
+
+    var query = @"
+        SELECT 
+            Course,
+            COUNT(*) AS TotalStudents,
+            AVG(Marks) AS AverageMarks,
             SUM(CASE WHEN Grade = 'A' THEN 1 ELSE 0 END) AS ACount,
             SUM(CASE WHEN Grade = 'B' THEN 1 ELSE 0 END) AS BCount,
             SUM(CASE WHEN Grade = 'C' THEN 1 ELSE 0 END) AS CCount,
             SUM(CASE WHEN Grade = 'D' THEN 1 ELSE 0 END) AS DCount
-            FROM Students GROUP BY Course;";
-        using var cmd = new SqlCommand(query, conn);
-        using var reader = await cmd.ExecuteReaderAsync();
-        while (await reader.ReadAsync())
+        FROM Students
+        GROUP BY Course;
+    ";
+
+    using var cmd = new SqlCommand(query, conn);
+    using var reader = await cmd.ExecuteReaderAsync();
+    while (await reader.ReadAsync())
+    {
+        reports.Add(new CourseReport
         {
-            reports.Add(new CourseReport{Course = reader.GetString(0),
-                TotalStudents = reader.GetInt32(1),
-                AverageMarks = reader.GetDouble(2),
-                ACount = reader.GetInt32(3),    
-                BCount = reader.GetInt32(4),
-                CCount = reader.GetInt32(5),
-                DCount = reader.GetInt32(6)
-            });
-        }
-        return Ok(reports);
+            Course = reader.GetString(0),
+            TotalStudents = reader.GetInt32(1),
+            AverageMarks = reader.GetDouble(2),
+            ACount = reader.GetInt32(3),
+            BCount = reader.GetInt32(4),
+            CCount = reader.GetInt32(5),
+            DCount = reader.GetInt32(6)
+        });
+    }
+    return Ok(reports);
     }
 
     [HttpDelete("{id}")]

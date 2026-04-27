@@ -105,7 +105,8 @@ public class StudentsController(IConfiguration config) : ControllerBase
         using var conn = new SqlConnection(_connectionString); 
         await conn.OpenAsync();//open asynchrounous connection to the sql server
         using var cmd = new SqlCommand("SELECT Id, Name, Course, Marks, Grade FROM Students", conn);
-        using var reader = await cmd.ExecuteReaderAsync();
+        using (var reader = await cmd.ExecuteReaderAsync())
+        {
             while (await reader.ReadAsync())
             {
                 studentsWithGrade.Add(new Student //We add json format of the students to studentsWithGrade
@@ -117,8 +118,8 @@ public class StudentsController(IConfiguration config) : ControllerBase
                     Grade = reader.IsDBNull(4) ? null : reader.GetString(4)
                 });
             }
-        
-        
+
+        }        
         foreach (var stu in studentsWithGrade)
         {
             stu.Grade = GetGrade(stu.Marks); //We get the Students grade foreach iteration and update the grade.

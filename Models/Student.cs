@@ -16,10 +16,10 @@ public class CourseReport
 {
     public string Course {get; set;} = string.Empty;
     public int TotalStudents {get; set;}
-    public double AverageMarks {get; set;}
-    public int ACount { get; set;}
-    public int BCount {get; set;}
-    public int CCount {get; set;}
+    public Double AverageMarks {get; set;}
+    public int A { get; set;}
+    public int B {get; set;}
+    public int C {get; set;}
 
-    public int DCount{get; set;}
+    public int D {get; set;}
 }

@@ -143,11 +143,11 @@ public class StudentsController(IConfiguration config) : ControllerBase
             SELECT 
                 Course,
                 COUNT(*) AS TotalStudents,
-                AVG(Marks) AS AverageMarks,
-                SUM(CASE WHEN Grade = 'A' THEN 1 ELSE 0 END) AS ACount,
-                SUM(CASE WHEN Grade = 'B' THEN 1 ELSE 0 END) AS BCount,
-                SUM(CASE WHEN Grade = 'C' THEN 1 ELSE 0 END) AS CCount,
-                SUM(CASE WHEN Grade = 'D' THEN 1 ELSE 0 END) AS DCount
+                AVG(CAST(Marks AS DECIMAL(10,2))) AS AverageMarks,
+                SUM(CASE WHEN Grade = 'A' THEN 1 ELSE 0 END) AS A,
+                SUM(CASE WHEN Grade = 'B' THEN 1 ELSE 0 END) AS B,
+                SUM(CASE WHEN Grade = 'C' THEN 1 ELSE 0 END) AS C,
+                SUM(CASE WHEN Grade = 'D' THEN 1 ELSE 0 END) AS D
             FROM Students
             GROUP BY Course;
         ";
@@ -161,13 +161,13 @@ public class StudentsController(IConfiguration config) : ControllerBase
                 Course = reader.GetString(0),
                 TotalStudents = reader.GetInt32(1),
                 AverageMarks = Math.Round(Convert.ToDouble(reader.GetValue(2)), 2),
-                ACount = reader.GetInt32(3),
-                BCount = reader.GetInt32(4),
-                CCount = reader.GetInt32(5),
-                DCount = reader.GetInt32(6)
+                A = reader.GetInt32(3),
+                B = reader.GetInt32(4),
+                C = reader.GetInt32(5),
+                D = reader.GetInt32(6)
             });
         }
-        return Ok(reports); //Return the full report as JSON to the client
+        return Ok(reports); //Returns the full report as JSON to the client
     }
 
     [HttpDelete("{id}")]

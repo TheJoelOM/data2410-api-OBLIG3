@@ -160,7 +160,7 @@ public class StudentsController(IConfiguration config) : ControllerBase
             {
                 Course = reader.GetString(0),
                 TotalStudents = reader.GetInt32(1),
-                AverageMarks = Convert.ToDouble(reader.GetValue(2)),
+                AverageMarks = Math.Round(Convert.ToDouble(reader.GetValue(2)), 2),
                 ACount = reader.GetInt32(3),
                 BCount = reader.GetInt32(4),
                 CCount = reader.GetInt32(5),
